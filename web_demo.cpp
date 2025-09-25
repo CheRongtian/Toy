@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include "log_utils.hpp"
+#include "db_utils.hpp"
 
 #define COLOR_GREEN "\033[32m"
 #define COLOR_RED "\033[31m"
@@ -68,6 +69,12 @@ std::string extract_header_value(const std::string& headers, const std::string& 
 
 int main(int argc, char*argv[])
 {
+    // Test db
+    if (!init_database("message.db")) std::cerr << "Database initialization failed\n";
+    if (!insert_message("message.db", "TestUser", "Hello from SQLite")) std::cerr << "Insert failed in main()\n";
+
+    std::string base_path = "../static/";
+
     int port=8080;
     if(argc>=2)
     {
@@ -141,23 +148,20 @@ int main(int argc, char*argv[])
         std::string user_agent = extract_header_value(raw_request, "User-Agent");
 
         std::string file_path;
-        if(path == "/") file_path = "Home.html";
+        if(path == "/") file_path = base_path+ "Home.html";
         else
         {
             std::string stripped = path.substr(1);
-            if(has_known_extension(stripped)) file_path=stripped;
+            std::string full_path = base_path + stripped;
+            std::ifstream test_file(full_path);
+            
+            if (test_file.good()) file_path = full_path;
             else 
             {
-                std::string try_html = stripped + ".html";
+                std::string try_html = full_path + ".html";
                 std::ifstream test_html(try_html);
-                if (test_html.good()) 
-                {
-                    file_path = try_html;
-                } 
-                else 
-                {
-                    file_path = stripped; 
-                }
+                if(test_html.good()) file_path = try_html; 
+                else file_path = full_path;
             }
         }
 
@@ -171,7 +175,7 @@ int main(int argc, char*argv[])
         if(!file)
         {
             status_line = "HTTP/1.1 404 Not Found\r\n";
-            std::ifstream not_found_file("404.html");
+            std::ifstream not_found_file(base_path + "404.html");
             if(not_found_file)
             {
                 std::stringstream nf_stream;

@@ -1,0 +1,3 @@
+/Users/cherongtian/Desktop/demo projects/HTML demo/build/CMakeFiles/web_demo.dir
+/Users/cherongtian/Desktop/demo projects/HTML demo/build/CMakeFiles/edit_cache.dir
+/Users/cherongtian/Desktop/demo projects/HTML demo/build/CMakeFiles/rebuild_cache.dir
